@@ -1,0 +1,3 @@
+TODO
+* All filepaths recived by client should be relative from
+  the server's FS Root directory
