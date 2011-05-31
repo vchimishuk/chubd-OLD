@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"id3tag"
 	"./audio"
 )
 
@@ -22,10 +23,15 @@ func (tr *TagReader) Match(filename string) bool {
 }
 
 func (tr *TagReader) ReadTag(filename string) (tag *audio.Tag, err os.Error) {
+	id3Tag, err := id3tag.Parse(filename)
+	if err != nil {
+		return nil, err
+	}
+
 	tag = new(audio.Tag)
-	tag.Artist = "artist"
-	tag.Album = "album"
-	tag.Title = "title"
+	tag.Artist = id3Tag.Artist()
+	tag.Album = id3Tag.Album()
+	tag.Title = id3Tag.Title()
 	tag.Length = "0:00"
 
 	return tag, nil
