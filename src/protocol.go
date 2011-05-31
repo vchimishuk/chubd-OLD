@@ -9,7 +9,7 @@ import (
 	"scanner"
 	"strings"
 	"./server"
-	"./filesystem"
+	"./vfs"
 )
 
 // command represents parsed command.
@@ -67,13 +67,13 @@ var commandDescriptors = map[string]commandDescriptor{
 
 // CommandHandler struct.
 type CommandHandler struct {
-	fs *filesystem.Filesystem
+	fs *vfs.Filesystem
 }
 
 // NewCommandHandler creates new initialized command handler object.
 func NewCommandHandler() *CommandHandler {
 	ch := new(CommandHandler)
-	ch.fs = filesystem.New()
+	ch.fs = vfs.New()
 
 	return ch
 }
@@ -179,15 +179,24 @@ func cmdLs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 	}
 
 	lastIndex := len(entries) - 1
-	//for i, entry := range entries {
 	for i := 0; i < len(entries); i++ {
 		writef(writer, "Type: %s\n", entries[i].TypeString())
 
 		switch entries[i].Type() {
-		case filesystem.TypeTrack:
-			writef(writer, "FileName: %s\n", entries[i].Track().Filename)
-		case filesystem.TypeDirectory:
-			writef(writer, "Name: [%s]\n", entries[i].Directory().Name)
+		case vfs.TypeTrack:
+			track := entries[i].Track()
+			tag := track.Tag
+			// Tracks are indentified by filename:trackNum scheme.
+			// For single track files trackNum can be omitted.
+			writef(writer, "FileName: %s\n", track.Filename)
+			writef(writer, "Artist: %s\n", tag.Artist)
+			writef(writer, "Album: %s\n", tag.Album)
+			writef(writer, "Title: %s\n", tag.Title)
+			writef(writer, "Length: %s\n", tag.Length)
+		case vfs.TypeDirectory:
+			dir := entries[i].Directory()
+			writef(writer, "Filename: %s\n", dir.Filename)
+			writef(writer, "Name: %s\n", dir.Name)
 		}
 
 		if i < lastIndex {

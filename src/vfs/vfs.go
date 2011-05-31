@@ -1,5 +1,5 @@
 // Filesystem package implements abstraction over OS filesystem API.
-package filesystem
+package vfs
 
 import (
 	"os"
@@ -83,10 +83,15 @@ func (fs *Filesystem) List() (entries []*Entry, err os.Error) {
 		}
 
 		if fi.IsRegular() {
-			tracks = append(tracks, NewTrack(fullPath))
+			track, err := NewTrack(fullPath)
+			if err == nil {
+				tracks = append(tracks, track)
+			}
 		} else if fi.IsDirectory() {
-			d, _ := NewDirectory(fullPath)
-			dirs = append(dirs, d)
+			dir, err := NewDirectory(fullPath)
+			if err == nil {
+				dirs = append(dirs, dir)
+			}
 		}
 	}
 

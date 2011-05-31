@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"fmt"
+	"./audio"
+	"./mp3"
 	"./server"
 	"./protocol"
 )
@@ -12,6 +14,8 @@ func main() {
 
 	// TODO: Daemonize itself.
 	//       daemonize()
+
+	audio.RegisterTagReader(mp3.NewTagReader())
 
 	host := "127.0.0.1"
 	port := 8888

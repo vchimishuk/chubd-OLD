@@ -1,18 +1,39 @@
 // Track implements playable file (or piece of file) abstraction.
-package filesystem
+package vfs
 
 import (
+	"os"
 	"sort"
+	"./audio"
 )
 
 // Track represents track (one song) which can be played.
 type Track struct {
+	// Full path to the file.
 	Filename string
+	Tag *audio.Tag
+	// Length of the track in seconds.
+	// length int 
 }
 
 // NewTrack returns new initialized track.
-func NewTrack(filename string) *Track {
-	return &Track{filename}
+// nil return value means unsupported track file.
+func NewTrack(filename string) (track *Track, err os.Error) {
+	tagReader, err := audio.NewTagReader(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	tag, err := tagReader.ReadTag(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	track = new(Track)
+	track.Filename = filename
+	track.Tag = tag
+	
+	return track, nil
 }
 
 // Len returns length of the track in seconds.
