@@ -7,6 +7,7 @@ import (
 	"net/textproto"
 	"bufio"
 	"fmt"
+	"sync"
 )
 
 // Server is the server itself interface, which can listen network (TCP, UNIX Sockets, etc.)
@@ -15,7 +16,6 @@ type Server interface {
 	// SetConnectionHandler should be called before Serve method
 	// to set client connection processor.
 	SetConnectionHandler(handler ConnectionHandler)
-
 	// Serve start main server loop, which accepts connection form the clients
 	// and do next communication processing.
 	Serve() os.Error
@@ -39,6 +39,10 @@ type CommandHandler interface {
 
 // tcpServer represents server which works on TCP/IP netwoks.
 type tcpServer struct {
+	// Number of currently connected clients.
+	clientsCount int
+	// Mutex for protecting clientsCount field.
+	mutex sync.Mutex
 	listener          *net.TCPListener
 	connectionHandler ConnectionHandler
 	commandHandler    CommandHandler
@@ -94,6 +98,9 @@ func (srv *tcpServer) Serve() os.Error {
 // handleClient handle the client and organize communication between the client
 // and CommandHandler.
 func (srv *tcpServer) handleClient(conn net.Conn, commandHandler CommandHandler) {
+	srv.addClient()
+	defer srv.removeClient()
+
 	for {
 		reader := textproto.NewReader(bufio.NewReader(conn))
 		command, err := reader.ReadLine() // TODO: Parse request string to command.
@@ -108,4 +115,19 @@ func (srv *tcpServer) handleClient(conn net.Conn, commandHandler CommandHandler)
 	}
 
 	conn.Close()
+}
+
+// addClient register new client.
+func (srv *tcpServer) addClient() {
+	srv.mutex.Lock()
+	defer srv.mutex.Unlock()
+	
+	srv.clientsCount++
+}
+
+func (srv *tcpServer) removeClient() {
+	srv.mutex.Lock()
+	defer srv.mutex.Unlock()
+
+	srv.clientsCount--
 }

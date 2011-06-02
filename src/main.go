@@ -3,10 +3,16 @@ package main
 import (
 	"os"
 	"fmt"
+	"os/signal"
 	"./audio"
 	"./mp3"
 	"./server"
 	"./protocol"
+)
+
+// UNIX signals
+const (
+	SigTerm = 15
 )
 
 func main() {
@@ -26,6 +32,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Run listening loop.
 	srv.SetConnectionHandler(new(protocol.ConnectionHandler))
-	srv.Serve()
+	go srv.Serve()
+
+	// On SIGTERM received we have to close all client connections
+	// and then exit. So we loop till this signal will be recieved.
+	for {
+		sig := (<-signal.Incoming).(signal.UnixSignal)
+		sigNum := int32(sig)
+
+		if sigNum == SigTerm {
+			break
+		}
+	}
 }
