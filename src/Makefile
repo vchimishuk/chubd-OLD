@@ -15,8 +15,8 @@ server.$(O): server.go
 protocol.$(O): server.$(O) vfs.$(O) protocol.go
 	$(GC) protocol.go
 
-vfs.$(O): vfs/vfs.go vfs/track.go vfs/directory.go vfs/entry.go audio.$(O) config.$(O)
-	$(GC) -o vfs.$(O) vfs/vfs.go vfs/track.go vfs/directory.go vfs/entry.go
+vfs.$(O): vfs/vfs.go vfs/track.go vfs/directory.go vfs/entry.go vfs/path.go audio.$(O) config.$(O)
+	$(GC) -o vfs.$(O) vfs/vfs.go vfs/track.go vfs/directory.go vfs/entry.go vfs/path.go
 
 audio.$(O): audio/tagreader.go audio/tag.go
 	$(GC) -o audio.$(O) audio/tagreader.go audio/tag.go

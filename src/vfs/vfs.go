@@ -5,62 +5,67 @@ import (
 	"os"
 	"fmt"
 	"path"
+	"strings"
+	"./config"
 )
 
 // Filesystem structure.
 type Filesystem struct {
-	// Working directory.
-	wd string
+	// Working directory based from the root.
+	wd *Path
 }
 
 // New returns newly initialized Filesystem object.
 func New() *Filesystem {
 	fs := new(Filesystem)
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to initialize new Filesystem: %s", err))
-	}
-
-	fs.SetWorkingDir(wd)
+	fs.SetWorkingDir("/")
 
 	return fs
 }
 
-// WorkingDir returns current directory where we are located in.
+// WorkingDir returns chrootedd current directory where we are located in.
 func (fs *Filesystem) WorkingDir() string {
-	return fs.wd
+	return fs.wd.Path()
+}
+
+// WorkingDirFull returns not chrooted working directory.
+// Returned value is a full path based on root of the physical FS.
+func (fs *Filesystem) WorkingDirFull() string {
+	return fs.wd.PathFull()
 }
 
 // SetWorkingDir sets new working directory, -- directory where we are located in.
 func (fs *Filesystem) SetWorkingDir(dir string) os.Error {
-	var newWd string
-	dir = path.Clean(dir)
+	root, _ := config.Configurations.GetString("fs.root")
 
+	var newWd *Path
 	if path.IsAbs(dir) {
-		newWd = dir
+		newWd = NewPath(dir)
 	} else {
-		newWd = path.Join(fs.wd, dir)
+		newWd = NewPath(path.Join(fs.wd.Path(), dir))
+
+		// New path can't be upper than root.
+		if !strings.HasPrefix(newWd.PathFull(), root) {
+			newWd = NewPath("/")
+		}
 	}
 
-	fileInfo, err := os.Stat(newWd)
+	fileInfo, err := os.Stat(newWd.PathFull())
 	if err != nil {
-		return err
+		return os.NewError(fmt.Sprintf("'%s' is not file or directory", newWd.Path()))
 	}
-
 	if !fileInfo.IsDirectory() {
-		return os.NewError(fmt.Sprintf("'%s' is not a directory", newWd))
+		return os.NewError(fmt.Sprintf("'%s' is not a directory", newWd.Path()))
 	}
 
 	fs.wd = newWd
-
-	// TODO: Check if directory is readable end executable for me.
 
 	return nil
 }
 
 // List returns content of the working directory.
 func (fs *Filesystem) List() (entries []*Entry, err os.Error) {
-	wd, err := os.Open(fs.wd)
+	wd, err := os.Open(fs.WorkingDirFull())
 	if err != nil {
 		return nil, err
 	}
@@ -76,19 +81,19 @@ func (fs *Filesystem) List() (entries []*Entry, err os.Error) {
 
 	// Split items to dirs and tracks.
 	for _, file := range files {
-		fullPath := path.Join(fs.wd, file)
-		fi, err := os.Stat(fullPath)
+		filePath := NewPath(path.Join(fs.WorkingDir(), file))
+		fi, err := os.Stat(filePath.PathFull())
 		if err != nil {
 			return nil, err
 		}
 
 		if fi.IsRegular() {
-			track, err := NewTrack(fullPath)
+			track, err := NewTrack(filePath)
 			if err == nil {
 				tracks = append(tracks, track)
 			}
 		} else if fi.IsDirectory() {
-			dir, err := NewDirectory(fullPath)
+			dir, err := NewDirectory(filePath)
 			if err == nil {
 				dirs = append(dirs, dir)
 			}

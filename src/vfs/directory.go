@@ -10,15 +10,15 @@ import (
 // Directory represents "real" directory in our virtual FS.
 type Directory struct {
 	// Full path to the directory.
-	Filename string
+	Filename *Path
 	// Short name, -- last segment.
 	Name string
 }
 
 // NewDirectory returns newly initialized Directory object.
 // filename parameter is full path to this directory.
-func NewDirectory(filename string) (dir *Directory, err os.Error) {
-	fi, err := os.Stat(filename)
+func NewDirectory(filename *Path) (dir *Directory, err os.Error) {
+	fi, err := os.Stat(filename.PathFull())
 	if err != nil {
 		return
 	}
@@ -29,7 +29,7 @@ func NewDirectory(filename string) (dir *Directory, err os.Error) {
 
 	dir = new(Directory)
 	dir.Filename = filename
-	dir.Name = path.Base(filename)
+	dir.Name = path.Base(filename.Path())
 
 	return
 }

@@ -42,7 +42,7 @@ type tcpServer struct {
 	// Number of currently connected clients.
 	clientsCount int
 	// Mutex for protecting clientsCount field.
-	mutex sync.Mutex
+	mutex             sync.Mutex
 	listener          *net.TCPListener
 	connectionHandler ConnectionHandler
 	commandHandler    CommandHandler
@@ -121,7 +121,7 @@ func (srv *tcpServer) handleClient(conn net.Conn, commandHandler CommandHandler)
 func (srv *tcpServer) addClient() {
 	srv.mutex.Lock()
 	defer srv.mutex.Unlock()
-	
+
 	srv.clientsCount++
 }
 

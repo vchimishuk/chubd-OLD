@@ -10,21 +10,21 @@ import (
 // Track represents track (one song) which can be played.
 type Track struct {
 	// Full path to the file.
-	Filename string
-	Tag *audio.Tag
+	Filename *Path
+	Tag      *audio.Tag
 	// Length of the track in seconds.
 	// length int 
 }
 
 // NewTrack returns new initialized track.
 // nil return value means unsupported track file.
-func NewTrack(filename string) (track *Track, err os.Error) {
-	tagReader, err := audio.NewTagReader(filename)
+func NewTrack(filename *Path) (track *Track, err os.Error) {
+	tagReader, err := audio.NewTagReader(filename.PathFull())
 	if err != nil {
 		return nil, err
 	}
 
-	tag, err := tagReader.ReadTag(filename)
+	tag, err := tagReader.ReadTag(filename.PathFull())
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func NewTrack(filename string) (track *Track, err os.Error) {
 	track = new(Track)
 	track.Filename = filename
 	track.Tag = tag
-	
+
 	return track, nil
 }
 
@@ -56,7 +56,7 @@ func (ta TrackArray) Len() int {
 
 // Less returns true if i-element of the array less than j-element.
 func (ta TrackArray) Less(i int, j int) bool {
-	return ta[i].Filename < ta[j].Filename
+	return ta[i].Filename.Path() < ta[j].Filename.Path()
 }
 
 // Swap swaps two array elements.
