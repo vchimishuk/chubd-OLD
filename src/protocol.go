@@ -10,6 +10,7 @@ import (
 	"strings"
 	"./server"
 	"./vfs"
+	"./player"
 )
 
 // command represents parsed command.
@@ -58,10 +59,13 @@ type commandDescriptor struct {
 
 // All supported commands descriptors. 
 var commandDescriptors = map[string]commandDescriptor{
-	"CD":   commandDescriptor{1, cmdCd},
-	"LS":   commandDescriptor{0, cmdLs},
-	"PING": commandDescriptor{0, cmdPing},
-	"PWD":  commandDescriptor{0, cmdPwd},
+	"CD":             commandDescriptor{1, cmdCd},
+	"LS":             commandDescriptor{0, cmdLs},
+	"PING":           commandDescriptor{0, cmdPing},
+	"PWD":            commandDescriptor{0, cmdPwd},
+	"PLAYLISTS":      commandDescriptor{0, cmdPlaylists},
+	"ADDPLAYLIST":    commandDescriptor{1, cmdAddPlaylist},
+	"DELETEPLAYLIST": commandDescriptor{1, cmdDeletePlaylist},
 	// "QUIT": built-in
 }
 
@@ -205,4 +209,39 @@ func cmdLs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 	}
 
 	return nil
+}
+
+// cmdPlaylists handles PLAYLISTS server command.
+// PLAYLISTS command prints list of the registered playlists.
+func cmdPlaylists(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
+	lastIndex := len(player.Playlists()) - 1
+
+	for i, pl := range player.Playlists() {
+		writer.WriteString(fmt.Sprintf("Name: %s\n", pl.Name()))
+		writer.WriteString(fmt.Sprintf("Length: %d\n", pl.Len()))
+
+		if i < lastIndex {
+			writer.WriteString("\n")
+		}
+	}
+
+	return nil
+}
+
+// cmdAddPlaylist creates new empty playlist.
+// Parameters:
+// * playlist name
+func cmdAddPlaylist(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
+	name := cmd.Parameters[0]
+
+	return player.AddPlaylist(name)
+}
+
+// cmdDeletePlaylist deletes existing playlist for the given name.
+// Parameters:
+// * playlist name
+func cmdDeletePlaylist(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
+	name := cmd.Parameters[0]
+
+	return player.DeletePlaylist(name)
 }
