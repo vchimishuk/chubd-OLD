@@ -5,6 +5,7 @@ import (
 	"os"
 	"fmt"
 	"sync"
+	"./vfs"
 	"./playlist"
 )
 
@@ -90,5 +91,5 @@ func init() {
 	playlists = make([]*playlist.Playlist, 0)
 
 	// We have one system (predefined) playlist, -- *vfs*.
-	playlists = append(playlists, playlist.New("*vfs*"))
+	playlists = append(playlists, playlist.New(vfs.PlaylistName))
 }

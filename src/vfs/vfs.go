@@ -9,6 +9,10 @@ import (
 	"./config"
 )
 
+const (
+	PlaylistName = "*vfs*"
+)
+
 // Filesystem structure.
 type Filesystem struct {
 	// Working directory based from the root.
