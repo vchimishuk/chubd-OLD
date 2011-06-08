@@ -66,6 +66,7 @@ var commandDescriptors = map[string]commandDescriptor{
 	"PLAYLISTS":      commandDescriptor{0, cmdPlaylists},
 	"ADDPLAYLIST":    commandDescriptor{1, cmdAddPlaylist},
 	"DELETEPLAYLIST": commandDescriptor{1, cmdDeletePlaylist},
+	"PLAYVFS":        commandDescriptor{1, cmdPlayVfs},
 	// "QUIT": built-in
 }
 
@@ -244,4 +245,30 @@ func cmdDeletePlaylist(ch *CommandHandler, writer *bufio.Writer, cmd *command) o
 	name := cmd.Parameters[0]
 
 	return player.DeletePlaylist(name)
+}
+
+// cmdPlayVfs plays track from the working directory.
+// Parameters:
+// * track (filename)
+func cmdPlayVfs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
+	// filename := cmd.Parameters[0]
+
+	pl, _ := player.Playlist(vfs.PlaylistName)
+	pl.Clear()
+
+	// TODO: Add tracks from wd.
+	entries, err := ch.fs.List()
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.Type() == vfs.TypeTrack {
+			pl.Append(entry.Track())
+		}
+	}
+
+	// TODO: Play track.
+
+	return nil
 }
