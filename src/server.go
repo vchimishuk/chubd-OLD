@@ -125,6 +125,7 @@ func (srv *tcpServer) addClient() {
 	srv.clientsCount++
 }
 
+// removeClient delete new client.
 func (srv *tcpServer) removeClient() {
 	srv.mutex.Lock()
 	defer srv.mutex.Unlock()

@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"./audio"
 	"./mp3"
+	"./ogg"
 	"./server"
 	"./protocol"
 )
@@ -22,6 +23,7 @@ func main() {
 	//       daemonize()
 
 	audio.RegisterTagReader(mp3.NewTagReader())
+	audio.RegisterTagReader(ogg.NewTagReader())
 
 	host := "127.0.0.1"
 	port := 8888

@@ -75,6 +75,7 @@ func (config *Config) SetString(key string, value string) os.Error {
 	return nil
 }
 
+// File initialization function.
 func init() {
 	filename := "/etc/chubd.conf"
 
