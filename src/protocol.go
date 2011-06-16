@@ -218,6 +218,11 @@ func cmdPlaylists(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Err
 	lastIndex := len(player.Playlists()) - 1
 
 	for i, pl := range player.Playlists() {
+		// System playlists are not visible to clients.
+		if pl.IsSystem() {
+			continue
+		}
+
 		writer.WriteString(fmt.Sprintf("Name: %s\n", pl.Name()))
 		writer.WriteString(fmt.Sprintf("Length: %d\n", pl.Len()))
 
