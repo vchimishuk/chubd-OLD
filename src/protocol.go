@@ -67,6 +67,7 @@ var commandDescriptors = map[string]commandDescriptor{
 	"ADDPLAYLIST":    commandDescriptor{1, cmdAddPlaylist},
 	"DELETEPLAYLIST": commandDescriptor{1, cmdDeletePlaylist},
 	"PLAYVFS":        commandDescriptor{1, cmdPlayVfs},
+	"PAUSE":          commandDescriptor{0, cmdPause},
 	// "QUIT": built-in
 }
 
@@ -273,7 +274,15 @@ func cmdPlayVfs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error
 		}
 	}
 
-	// TODO: Play track.
+	// TODO: Find track number (position in playlist) by filename parameter.
+	player.Play(vfs.PlaylistName, 0)
+
+	return nil
+}
+
+// cmdPause toggle player's pause state.
+func cmdPause(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
+	player.Pause()
 
 	return nil
 }

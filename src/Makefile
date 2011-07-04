@@ -12,8 +12,8 @@ config.$(O): config/config.go
 server.$(O): server.go
 	$(GC) server.go
 
-player.$(O): player.go playlist.$(O)
-	$(GC) player.go
+player.$(O): player/player.go player/playingroutine.go playlist.$(O) audio.$(O) ogg.$(O) alsa.$(O)
+	$(GC) -o player.$(O) player/player.go player/playingroutine.go
 
 protocol.$(O): server.$(O) vfs.$(O) protocol.go player.$(O)
 	$(GC) protocol.go
@@ -24,14 +24,17 @@ vfs.$(O): vfs/vfs.go vfs/track.go vfs/directory.go vfs/entry.go vfs/path.go audi
 playlist.$(O): playlist/playlist.go
 	$(GC) -o playlist.$(O) playlist/playlist.go
 
-audio.$(O): audio/tagreader.go audio/tag.go
-	$(GC) -o audio.$(O) audio/tagreader.go audio/tag.go
+audio.$(O): audio/decoder.go audio/output.go audio/tagreader.go audio/tag.go
+	$(GC) -o audio.$(O) audio/decoder.go audio/output.go audio/tagreader.go audio/tag.go
 
 mp3.$(O): mp3/tagreader.go audio.$(O)
 	$(GC) -o mp3.$(O) mp3/tagreader.go
 
-ogg.$(O): ogg/tagreader.go audio.$(O)
-	$(GC) -o ogg.$(O) ogg/tagreader.go
+ogg.$(O): ogg/ogg.go ogg/tagreader.go ogg/decoder.go audio.$(O)
+	$(GC) -o ogg.$(O) ogg/ogg.go ogg/tagreader.go ogg/decoder.go
+
+alsa.$(O): alsa/alsa.go audio.$(O)
+	$(GC) -o alsa.$(O) alsa/alsa.go
 
 clean:
 	rm -f *.$(O) chubd

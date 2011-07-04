@@ -3,7 +3,6 @@ package ogg
 
 import (
 	"os"
-	"path"
 	"strings"
 	"ogg"
 	"./audio"
@@ -15,15 +14,13 @@ type TagReader struct {
 }
 
 // NewTagreader returns newly initialized ogg TagReader implementation.
-func NewTagReader() *TagReader {
+func NewTagReader() audio.TagReader {
 	return new(TagReader)
 }
 
 // Match returns true if given file is the supported ogg file.
 func (tr *TagReader) Match(filename string) bool {
-	ext := strings.ToLower(path.Ext(filename))
-
-	return ext == ".ogg"
+	return match(filename)
 }
 
 // ReadTag returns Tag structure filled with values from the given file.
@@ -39,7 +36,7 @@ func (tr *TagReader) ReadTag(filename string) (tag *audio.Tag, err os.Error) {
 	 DESCRIPTION=some comment here...
 	 COMMENT=some comment here...
 	 =some comment here...
-	 */
+	*/
 
 	file, err := ogg.New(filename)
 	if err != nil {

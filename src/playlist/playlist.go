@@ -36,6 +36,11 @@ func (pl *Playlist) Tracks() []*vfs.Track {
 	return pl.tracks
 }
 
+// Track returns track by its position.
+func (pl *Playlist) Track(n int) *vfs.Track {
+	return pl.tracks[n]
+}
+
 // Len returns the total number of tracks present in playlist. 
 func (pl *Playlist) Len() int {
 	return len(pl.tracks)

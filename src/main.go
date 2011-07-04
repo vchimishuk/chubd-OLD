@@ -4,9 +4,6 @@ import (
 	"os"
 	"fmt"
 	"os/signal"
-	"./audio"
-	"./mp3"
-	"./ogg"
 	"./server"
 	"./protocol"
 )
@@ -21,9 +18,6 @@ func main() {
 
 	// TODO: Daemonize itself.
 	//       daemonize()
-
-	audio.RegisterTagReader(mp3.NewTagReader())
-	audio.RegisterTagReader(ogg.NewTagReader())
 
 	host := "127.0.0.1"
 	port := 8888
@@ -41,7 +35,7 @@ func main() {
 	// On SIGTERM received we have to close all client connections
 	// and then exit. So we loop till this signal will be recieved.
 	for {
-		sig := (<-signal.Incoming).(signal.UnixSignal)
+		sig := (<-signal.Incoming).(os.UnixSignal) // XXX: Will works in windows? No way!
 		sigNum := int32(sig)
 
 		if sigNum == SigTerm {

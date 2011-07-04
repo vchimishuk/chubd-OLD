@@ -10,7 +10,7 @@ import (
 // Track represents track (one song) which can be played.
 type Track struct {
 	// Full path to the file.
-	Filename *Path
+	Filename *Path // TODO: Rename to .path
 	Tag      *audio.Tag
 	// Length of the track in seconds.
 	// length int 
