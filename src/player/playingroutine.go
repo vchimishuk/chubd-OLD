@@ -155,8 +155,10 @@ func (thread *playingThread) openDecoder(track *vfs.Track) os.Error {
 
 // closeDecoder releases decoder driver.
 func (thread *playingThread) closeDecoder() {
-	thread.decoder.Close()
-	thread.decoder = nil
+	if thread.decoder != nil {
+		thread.decoder.Close()
+		thread.decoder = nil
+	}
 }
 
 // Ruotine is the core goroutine function.
@@ -216,6 +218,9 @@ func (thread *playingThread) routine() {
 				thread.closeDecoder()
 				thread.closeOutput()
 				thread.state = threadStateStopped
+
+				msg.data.(chan bool) <- true
+
 				return
 			}
 		case <-thread.bufAvailable:

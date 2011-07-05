@@ -68,6 +68,7 @@ var commandDescriptors = map[string]commandDescriptor{
 	"DELETEPLAYLIST": commandDescriptor{1, cmdDeletePlaylist},
 	"PLAYVFS":        commandDescriptor{1, cmdPlayVfs},
 	"PAUSE":          commandDescriptor{0, cmdPause},
+	"KILL":           commandDescriptor{0, cmdKill},
 	// "QUIT": built-in
 }
 
@@ -283,6 +284,16 @@ func cmdPlayVfs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error
 // cmdPause toggle player's pause state.
 func cmdPause(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 	player.Pause()
+
+	return nil
+}
+
+// cmdKill stops player. After program can be terminated.
+func cmdKill(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
+	player.Stop()
+
+	// TOOD: Add here correct program termination.
+	panic("TOOD: Add here correct program termination")
 
 	return nil
 }
