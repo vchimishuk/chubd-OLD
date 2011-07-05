@@ -46,8 +46,3 @@ func (decoder *Decoder) Read(buf []byte) (read int, err os.Error) {
 func (decoder *Decoder) Close() {
 	decoder.oggFile.Close()
 }
-
-// File initialization function.
-func init() {
-	audio.RegisterDecoderFactory(NewDecoder)
-}

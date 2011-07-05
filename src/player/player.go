@@ -103,6 +103,12 @@ func Pause() {
 	thread.Pause()
 }
 
+// Stop closes playing processes, frees resources.
+// This function should be called before exiting program.
+func Stop() {
+	thread.Stop()
+}
+
 // getPlaylistByName returns playlist for given name
 // or nil if there is no such playlist registered.
 func getPlaylistByName(name string) (playlist *playlist.Playlist, err os.Error) {
@@ -121,6 +127,8 @@ func init() {
 	audio.RegisterTagReaderFactory(ogg.NewTagReader)
 	// Audio outputs.
 	audio.RegisterOutput(alsa.DriverName, alsa.New)
+	// Audio decoders.
+	audio.RegisterDecoderFactory(ogg.NewDecoder)
 
 	// Playists
 	playlists = make([]*playlist.Playlist, 0)

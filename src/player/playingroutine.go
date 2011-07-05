@@ -5,8 +5,6 @@ import (
 	"os"
 	"./vfs"
 	"./audio"
-	// TODO: audio decoder and output should be used.
-	"ogg"
 )
 
 // messageType is the type for describing messages.
@@ -19,7 +17,6 @@ const (
 	messageTypePlay
 	// Toggle pause state (if playing something.
 	messageTypePaused
-
 	// Stop goroutine execution request message.
 	messageTypeKill
 )
@@ -53,8 +50,9 @@ type playingThread struct {
 	bufAvailable chan bool
 	// Output driver.
 	output audio.Output
-
-	decoder *ogg.File
+	// Decoder driver implementation for the current playing track.
+	// This is not nil only if thread in threadStatePlaying state.
+	decoder audio.Decoder
 }
 
 // newPlayingThread returns newly initialized playingThread object.
@@ -74,8 +72,15 @@ func (thread *playingThread) Start() {
 
 // Stop release resources and prepare for termination.
 func (thread *playingThread) Stop() {
-	// TODO: Release decoder and output.
-	// TODO: Be sure that this method is called.
+	// We send to the routine message and will wait for the answer.
+	wait := make(chan bool)
+
+	msg := new(message)
+	msg.t = messageTypeKill
+	msg.data = wait
+	thread.sendMessage(msg)
+
+	<- wait
 }
 
 // Play start playing given track.
@@ -136,8 +141,28 @@ func (thread *playingThread) closeOutput() {
 	}
 }
 
+// openDecoder initilizes decoder driver.
+func (thread *playingThread) openDecoder(track *vfs.Track) os.Error {
+	decoder, err := audio.GetDecoder(track.Filename.PathFull())
+	if err != nil {
+		return err
+	}
+	thread.decoder = decoder
+	thread.decoder.Open(track.Filename.PathFull())
+
+	return nil
+}
+
+// closeDecoder releases decoder driver.
+func (thread *playingThread) closeDecoder() {
+	thread.decoder.Close()
+	thread.decoder = nil
+}
+
 // Ruotine is the core goroutine function.
 func (thread *playingThread) routine() {
+	var err os.Error
+
 	for {
 		thread.startBufAvailableChecker()
 
@@ -147,11 +172,20 @@ func (thread *playingThread) routine() {
 			switch msg.t {
 			case messageTypePlay:
 				track := msg.data.(*vfs.Track)
+
 				// Initialize decoder driver.
-				thread.decoder, _ = ogg.New(track.Filename.PathFull())
+				if thread.decoder != nil {
+					thread.closeDecoder()
+				}
+				err = thread.openDecoder(track)
+				if err != nil {
+					// TODO: Write into log about unsupported decoder.
+					continue // for loop
+				}
+
 				// Initialize output driver.
 				if thread.output == nil {
-					err := thread.openOutput()
+					err = thread.openOutput()
 					if err != nil {
 						// TODO: Write to log.
 						continue // for loop
@@ -175,10 +209,12 @@ func (thread *playingThread) routine() {
 					thread.state = threadStatePlaying
 				}
 			case messageTypeStop:
-				// TODO: decoder? etc?
+				thread.closeDecoder()
 				thread.closeOutput()
 				thread.state = threadStateStopped
 			case messageTypeKill:
+				thread.closeDecoder()
+				thread.closeOutput()
 				thread.state = threadStateStopped
 				return
 			}

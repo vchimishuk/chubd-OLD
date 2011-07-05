@@ -18,15 +18,19 @@ type Decoder interface {
 	Close()
 }
 
+// decoderFactory is function wich returns new decoder implementation.
+type decoderFactory func () Decoder
+
 // List of decoder creation functions.
-var decoderFactories []func() Decoder
+var decoderFactories []decoderFactory
 
 // RegisterDecoderFactory registers new decoder factory method.
-func RegisterDecoderFactory(fact func() Decoder) {
+func RegisterDecoderFactory(fact decoderFactory) {
 	decoderFactories = append(decoderFactories, fact)
 }
 
-func NewDecoder(filename string) (decoder Decoder, err os.Error) {
+// GetDecoder returns decoder for decoding given file.
+func GetDecoder(filename string) (decoder Decoder, err os.Error) {
 	for _, factory := range decoderFactories {
 		decoder = factory()
 		if decoder.Match(filename) {

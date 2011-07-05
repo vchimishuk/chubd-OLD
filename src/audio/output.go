@@ -29,13 +29,14 @@ type Output interface {
 	Close()
 }
 
+// outputFactory is function wich returns new output driver implementation.
 type outputFactory func() Output
 
 // List of avaliable output factories.
-var outputFactories map[string]outputFactory = make(map[string]outputFactory)
+var outputFactories map[string] outputFactory = make(map[string] outputFactory)
 
 // RegisterOutput register new output device interface.
-func RegisterOutput(name string, fact func() Output) {
+func RegisterOutput(name string, fact outputFactory) {
 	outputFactories[name] = fact
 }
 
