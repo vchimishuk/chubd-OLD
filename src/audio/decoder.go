@@ -19,7 +19,7 @@ type Decoder interface {
 }
 
 // decoderFactory is function wich returns new decoder implementation.
-type decoderFactory func () Decoder
+type decoderFactory func() Decoder
 
 // List of decoder creation functions.
 var decoderFactories []decoderFactory

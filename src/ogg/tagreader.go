@@ -47,7 +47,7 @@ func (tr *TagReader) ReadTag(filename string) (tag *audio.Tag, err os.Error) {
 	tag = new(audio.Tag)
 
 	for _, uc := range file.Comment().UserComments {
-		foo := strings.Split(uc, "=", 2)
+		foo := strings.SplitN(uc, "=", 2)
 		key := foo[0]
 		value := foo[1]
 

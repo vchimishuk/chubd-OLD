@@ -80,7 +80,7 @@ func (thread *playingThread) Stop() {
 	msg.data = wait
 	thread.sendMessage(msg)
 
-	<- wait
+	<-wait
 }
 
 // Play start playing given track.
