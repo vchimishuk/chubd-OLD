@@ -44,3 +44,6 @@ format:
 
 run: all
 	./chubd
+
+kill:
+	killall chubd
