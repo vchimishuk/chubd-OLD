@@ -58,6 +58,8 @@ func (tr *TagReader) ReadTag(filename string) (tag *audio.Tag, err os.Error) {
 			tag.Album = value
 		case "TITLE":
 			tag.Title = value
+		case "TRACKNUMBER":
+			tag.Number = value
 		}
 	}
 

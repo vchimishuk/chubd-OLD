@@ -8,6 +8,8 @@ type Tag struct {
 	Album string
 	// Track's title.
 	Title string
+	// Track number.
+	Number string
 	// Track length
 	Length string
 }

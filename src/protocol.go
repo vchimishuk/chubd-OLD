@@ -195,10 +195,11 @@ func cmdLs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 			tag := track.Tag
 			// Tracks are indentified by filename:trackNum scheme.
 			// For single track files trackNum can be omitted.
-			writef(writer, "FileName: %s\n", track.Filename)
+			writef(writer, "FileName: %s:%d\n", track.FilePath.Path(), track.Number)
 			writef(writer, "Artist: %s\n", tag.Artist)
 			writef(writer, "Album: %s\n", tag.Album)
 			writef(writer, "Title: %s\n", tag.Title)
+			writef(writer, "Number: %s\n", tag.Number)
 			writef(writer, "Length: %s\n", tag.Length)
 		case vfs.TypeDirectory:
 			dir := entries[i].Directory()

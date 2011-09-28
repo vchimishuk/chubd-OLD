@@ -3,6 +3,7 @@ package vfs
 import (
 	. "path"
 	"strings"
+	"sort"
 	"./config"
 )
 // Path represents path to the resource of the VFS (file, track, ...)
@@ -45,4 +46,27 @@ func (path *Path) PathFull() string {
 	root, _ := config.Configurations.GetString("fs.root")
 
 	return Join(root, path.rootedPath)
+}
+
+// PathArray is helper type for manipulating Path arrays.
+type PathArray []*Path
+
+// Len returns length of the array.
+func (pa PathArray) Len() int {
+	return len(pa)
+}
+
+// Less returns true if i-element of the array less than j-element.
+func (pa PathArray) Less(i int, j int) bool {
+	return pa[i].Path() < pa[j].Path()
+}
+
+// Swap swaps two array elements.
+func (pa PathArray) Swap(i int, j int) {
+	pa[i], pa[j] = pa[j], pa[i]
+}
+
+// Sort sorts array in ascending order.
+func (pa PathArray) Sort() {
+	sort.Sort(pa)
 }

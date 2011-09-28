@@ -2,7 +2,6 @@
 package vfs
 
 import (
-	"os"
 	"sort"
 	"./audio"
 )
@@ -10,30 +9,20 @@ import (
 // Track represents track (one song) which can be played.
 type Track struct {
 	// Full path to the file.
-	Filename *Path // TODO: Rename to .path
+	FilePath *Path
+	Number   int
 	Tag      *audio.Tag
 	// Length of the track in seconds.
 	// length int 
 }
 
-// NewTrack returns new initialized track.
-// nil return value means unsupported track file.
-func NewTrack(filename *Path) (track *Track, err os.Error) {
-	tagReader, err := audio.NewTagReader(filename.PathFull())
-	if err != nil {
-		return nil, err
-	}
+// NewTrack returns new initialized track indentify some audio file and track.
+func NewTrack(filePath *Path, number int) *Track {
+	track := new(Track)
+	track.FilePath = filePath
+	track.Number = number
 
-	tag, err := tagReader.ReadTag(filename.PathFull())
-	if err != nil {
-		return nil, err
-	}
-
-	track = new(Track)
-	track.Filename = filename
-	track.Tag = tag
-
-	return track, nil
+	return track
 }
 
 // Len returns length of the track in seconds.
@@ -56,7 +45,7 @@ func (ta TrackArray) Len() int {
 
 // Less returns true if i-element of the array less than j-element.
 func (ta TrackArray) Less(i int, j int) bool {
-	return ta[i].Filename.Path() < ta[j].Filename.Path()
+	return ta[i].FilePath.Path() < ta[j].FilePath.Path()
 }
 
 // Swap swaps two array elements.
