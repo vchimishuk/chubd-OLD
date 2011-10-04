@@ -95,11 +95,21 @@ func (srv *tcpServer) Serve() os.Error {
 	return nil
 }
 
+// helloMessage returns server greeting string.
+func (srv *tcpServer) helloMessage() string {
+	return "Chubd 0.0 service\nOK\n" // TODO: Retrive version number from some global spot.
+}
+
 // handleClient handle the client and organize communication between the client
 // and CommandHandler.
 func (srv *tcpServer) handleClient(conn net.Conn, commandHandler CommandHandler) {
 	srv.addClient()
 	defer srv.removeClient()
+
+	// Say hello to client.
+	writer := bufio.NewWriter(conn)
+	writer.WriteString(srv.helloMessage())
+	writer.Flush()
 
 	for {
 		reader := textproto.NewReader(bufio.NewReader(conn))
