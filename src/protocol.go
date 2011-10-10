@@ -21,6 +21,17 @@ type command struct {
 	Parameters []string
 }
 
+// Field constants.
+const (
+	fieldNameType     = "Type"
+	fieldNameFilename = "Filename"
+	fieldNameArtist   = "Artist"
+	fieldNameAlbum    = "Album"
+	fieldNameTitle    = "Title"
+	fieldNameLength   = "Length"
+	fieldNameName     = "Name"
+)
+
 // parseCommand parses client's string command (request) to command object.
 // TODO: This parser sucks, so write you own with blackjac & bitches.
 func parseCommand(str string) (cmd *command, err os.Error) {
@@ -175,9 +186,8 @@ func cmdCd(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 func cmdLs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 	// Write HTTP header-like string to writer.
 	// Key: Value
-	writef := func(writer *bufio.Writer, format string, args ...interface{}) {
-		str := fmt.Sprintf(format, args...)
-		writer.WriteString(str)
+	writePair := func(key string, value string) {
+		writer.WriteString(fmt.Sprintf("%s: %s\n", key, value))
 	}
 
 	entries, err := ch.fs.List()
@@ -187,7 +197,7 @@ func cmdLs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 
 	lastIndex := len(entries) - 1
 	for i := 0; i < len(entries); i++ {
-		writef(writer, "Type: %s\n", entries[i].TypeString())
+		writePair(fieldNameType, entries[i].TypeString())
 
 		switch entries[i].Type() {
 		case vfs.TypeTrack:
@@ -195,15 +205,15 @@ func cmdLs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
 			tag := track.Tag
 			// Tracks are indentified by filename:trackNum scheme.
 			// For single track files trackNum can be omitted.
-			writef(writer, "FileName: %s\n", track.Filename)
-			writef(writer, "Artist: %s\n", tag.Artist)
-			writef(writer, "Album: %s\n", tag.Album)
-			writef(writer, "Title: %s\n", tag.Title)
-			writef(writer, "Length: %s\n", tag.Length)
+			writePair(fieldNameFilename, track.Filename.Path())
+			writePair(fieldNameArtist, tag.Artist)
+			writePair(fieldNameAlbum, tag.Album)
+			writePair(fieldNameTitle, tag.Title)
+			writePair(fieldNameLength, tag.Length)
 		case vfs.TypeDirectory:
 			dir := entries[i].Directory()
-			writef(writer, "Filename: %s\n", dir.Filename)
-			writef(writer, "Name: %s\n", dir.Name)
+			writePair(fieldNameFilename, dir.Filename.Path())
+			writePair(fieldNameName, dir.Name)
 		}
 
 		if i < lastIndex {
