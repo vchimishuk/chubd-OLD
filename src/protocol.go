@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"scanner"
 	"strings"
+	"strconv"
 	"./server"
 	"./vfs"
 	"./player"
@@ -257,14 +258,24 @@ func cmdDeletePlaylist(ch *CommandHandler, writer *bufio.Writer, cmd *command) o
 
 // cmdPlayVfs plays track from the working directory.
 // Parameters:
-// * track (filename)
+// * filename in next format: file.flac:3
 func cmdPlayVfs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error {
-	// filename := cmd.Parameters[0]
+	param := cmd.Parameters[0]
+	i := strings.LastIndex(param, ":")
+	if i == -1 {
+		return os.NewError("Bad filename format. Expected filename:track_number")
+	}
 
-	pl, _ := player.Playlist(vfs.PlaylistName)
+	filename := param[:i]
+	trackNumber, err := strconv.Atoi(param[i + 1:])
+	fmt.Printf("trackNumber: %d\n\n", trackNumber)
+	if err != nil || trackNumber < 0 {
+		return os.NewError("Bad track number format. 0..99 expected")
+	}
+
+	pl, _ := player.Playlist(vfs.PlaylistName) // I don't check error, because this playlist should be present always.
 	pl.Clear()
 
-	// TODO: Add tracks from wd.
 	entries, err := ch.fs.List()
 	if err != nil {
 		return err
@@ -276,8 +287,18 @@ func cmdPlayVfs(ch *CommandHandler, writer *bufio.Writer, cmd *command) os.Error
 		}
 	}
 
-	// TODO: Find track number (position in playlist) by filename parameter.
-	player.Play(vfs.PlaylistName, 0)
+	// Find track position in the VFS playlist.
+	pos := -1
+	for i, track := range pl.Tracks() {
+		if track.Number == trackNumber && track.FilePath.Path() == filename {
+			pos = i
+		}
+	}
+	if pos == -1 {
+		return os.NewError("Track not found in working directory")
+	}
+	
+	player.Play(vfs.PlaylistName, pos)
 
 	return nil
 }
