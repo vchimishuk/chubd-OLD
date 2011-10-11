@@ -143,12 +143,12 @@ func (thread *playingThread) closeOutput() {
 
 // openDecoder initilizes decoder driver.
 func (thread *playingThread) openDecoder(track *vfs.Track) os.Error {
-	decoder, err := audio.GetDecoder(track.Filename.PathFull())
+	decoder, err := audio.GetDecoder(track.FilePath.PathFull())
 	if err != nil {
 		return err
 	}
 	thread.decoder = decoder
-	thread.decoder.Open(track.Filename.PathFull())
+	thread.decoder.Open(track.FilePath.PathFull())
 
 	return nil
 }
