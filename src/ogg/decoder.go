@@ -5,6 +5,7 @@ import (
 	"fmt"
 	ogggo "ogg"
 	"./audio"
+	"./utils"
 )
 
 // Ogg decoder implementation.
@@ -20,7 +21,7 @@ func NewDecoder() audio.Decoder {
 
 // See audio.Decoder.
 func (decoder *Decoder) Match(filename string) bool {
-	return match(filename)
+	return utils.ExtensionMatch(filename, Extension)
 }
 
 // See audio.Decoder.

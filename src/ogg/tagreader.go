@@ -6,6 +6,7 @@ import (
 	"strings"
 	"ogg"
 	"./audio"
+	"./utils"
 )
 
 // Ogg TagReader implementation.
@@ -20,7 +21,7 @@ func NewTagReader() audio.TagReader {
 
 // Match returns true if given file is the supported ogg file.
 func (tr *TagReader) Match(filename string) bool {
-	return match(filename)
+	return utils.ExtensionMatch(filename, Extension)
 }
 
 // ReadTag returns Tag structure filled with values from the given file.

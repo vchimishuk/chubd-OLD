@@ -2,7 +2,7 @@ include $(GOROOT)/src/Make.inc
 
 all: chubd
 
-chubd: server.$(O) protocol.$(O) audio.$(O) mp3.$(O) ogg.$(O) config.$(O) playlist.$(O) player.$(O)
+chubd: server.$(O) protocol.$(O) audio.$(O) mp3.$(O) ogg.$(O) config.$(O) playlist.$(O) player.$(O) utils.$(O)
 	$(GC) main.go
 	$(LD) -o chubd main.$(O)
 
@@ -30,11 +30,14 @@ audio.$(O): audio/decoder.go audio/output.go audio/tagreader.go audio/tag.go
 mp3.$(O): mp3/tagreader.go audio.$(O)
 	$(GC) -o mp3.$(O) mp3/tagreader.go
 
-ogg.$(O): ogg/ogg.go ogg/tagreader.go ogg/decoder.go audio.$(O)
+ogg.$(O): ogg/ogg.go ogg/tagreader.go ogg/decoder.go audio.$(O) utils.$(O)
 	$(GC) -o ogg.$(O) ogg/ogg.go ogg/tagreader.go ogg/decoder.go
 
 alsa.$(O): alsa/alsa.go audio.$(O)
 	$(GC) -o alsa.$(O) alsa/alsa.go
+
+utils.$(O): utils/utils.go 
+	$(GC) -o utils.$(O) utils/utils.go
 
 clean:
 	rm -f *.$(O) chubd
