@@ -12,7 +12,7 @@ config.$(O): config/config.go
 server.$(O): server.go
 	$(GC) server.go
 
-player.$(O): player/player.go player/playingroutine.go playlist.$(O) audio.$(O) ogg.$(O) alsa.$(O)
+player.$(O): player/player.go player/playingroutine.go playlist.$(O) audio.$(O) ogg.$(O) mp3.$(O) alsa.$(O)
 	$(GC) -o player.$(O) player/player.go player/playingroutine.go
 
 protocol.$(O): server.$(O) vfs.$(O) protocol.go player.$(O)
@@ -27,8 +27,8 @@ playlist.$(O): playlist/playlist.go
 audio.$(O): audio/decoder.go audio/output.go audio/tagreader.go audio/tag.go
 	$(GC) -o audio.$(O) audio/decoder.go audio/output.go audio/tagreader.go audio/tag.go
 
-mp3.$(O): mp3/tagreader.go audio.$(O)
-	$(GC) -o mp3.$(O) mp3/tagreader.go
+mp3.$(O): mp3/tagreader.go mp3/decoder.go mp3/mp3.go audio.$(O)
+	$(GC) -o mp3.$(O) mp3/tagreader.go mp3/decoder.go mp3/mp3.go
 
 ogg.$(O): ogg/ogg.go ogg/tagreader.go ogg/decoder.go audio.$(O) utils.$(O)
 	$(GC) -o ogg.$(O) ogg/ogg.go ogg/tagreader.go ogg/decoder.go

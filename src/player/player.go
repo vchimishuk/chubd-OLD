@@ -9,6 +9,7 @@ import (
 	"./playlist"
 	"./audio"
 	"./ogg"
+	"./mp3"
 	"./alsa"
 )
 
@@ -125,10 +126,12 @@ func getPlaylistByName(name string) (playlist *playlist.Playlist, err os.Error) 
 func init() {
 	// Audio tagreaders.
 	audio.RegisterTagReaderFactory(ogg.NewTagReader)
+	audio.RegisterTagReaderFactory(mp3.NewTagReader)
 	// Audio outputs.
 	audio.RegisterOutput(alsa.DriverName, alsa.New)
 	// Audio decoders.
 	audio.RegisterDecoderFactory(ogg.NewDecoder)
+	audio.RegisterDecoderFactory(mp3.NewDecoder)
 
 	// Playists
 	playlists = make([]*playlist.Playlist, 0)
