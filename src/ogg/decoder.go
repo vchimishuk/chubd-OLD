@@ -13,6 +13,7 @@ type Decoder struct {
 	oggFile *ogggo.File
 }
 
+// NewDecoder returns ogg decoder implementation.
 func NewDecoder() audio.Decoder {
 	decoder := new(Decoder)
 
